@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetic Retinopathy Detection</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        h2 {
+            color: #333;
+        }
+        input {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background: #007BFF;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        p {
+            font-size: 18px;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #555;
+        }
+        img {
+            max-width: 100%;
+            margin-top: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Diabetic Retinopathy Detection System</h2>
+        <input type="file" id="imageInput" accept="image/*">
+        <button onclick="uploadImage()">Predict</button>
+        <p id="result"></p>
+        <p id="resnetResult"></p>
+        <img id="uploadedImage" style="display:none;">
+    </div>
+    
+    <script>
+        function uploadImage() {
+            let fileInput = document.getElementById('imageInput');
+            let file = fileInput.files[0];
+            if (!file) {
+                alert('Please select an image.');
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('result').innerText = 'Error: ' + data.error;
+                } else {
+                    // Display ResNet-101 results (without confidence)
+                    document.getElementById('resnetResult').innerText = `ResNet-101 Prediction: ${data.resnet_prediction}`;
+
+                    // Display uploaded image
+                    let img = document.getElementById('uploadedImage');
+                    img.src = data.image_url;
+                    img.style.display = 'block';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
